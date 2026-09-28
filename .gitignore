@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+log.txt
+data/resumo.json
+data/erros.txt
+dashboard.html

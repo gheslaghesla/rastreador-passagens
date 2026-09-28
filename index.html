@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rumo ao Texas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#EEF2F5; --panel:#FFFFFF; --ink:#12202C; --muted:#5B6B78; --line:#D5DDE4;
+  --accent:#1D5FB4; --accent-soft:#DCE8F7;
+  --good:#16804F; --good-soft:#DAF1E4; --warn:#B45309; --warn-soft:#FBEBD6; --bad:#B42318;
+  --grid:#E3E9EE;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0D151C; --panel:#15212B; --ink:#E6EDF3; --muted:#91A1AE; --line:#263541;
+  --accent:#6FA8F0; --accent-soft:#1B3350;
+  --good:#4CC38A; --good-soft:#133426; --warn:#F0A04B; --warn-soft:#3A2812; --bad:#F87171;
+  --grid:#1F2C37;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0D151C; --panel:#15212B; --ink:#E6EDF3; --muted:#91A1AE; --line:#263541;
+  --accent:#6FA8F0; --accent-soft:#1B3350;
+  --good:#4CC38A; --good-soft:#133426; --warn:#F0A04B; --warn-soft:#3A2812; --bad:#F87171;
+  --grid:#1F2C37;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding:28px 16px 48px}
+.wrap{max-width:1080px;margin:0 auto;display:grid;gap:22px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:clamp(28px,5vw,40px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:700}
+.eyebrow{font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header{display:grid;gap:10px}
+.route{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:14px}
+.route b{color:var(--ink);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:stretch}
+@media (max-width:760px){.hero{grid-template-columns:1fr}}
+.best{display:grid;gap:12px}
+.price{font:700 clamp(40px,8vw,60px)/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.price small{font-size:.4em;font-weight:500;color:var(--muted);margin-right:4px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font:600 12px/1.4 var(--body)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.neutral{background:var(--accent-soft);color:var(--accent)}
+.legs{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px}
+.legs span b{font-family:var(--mono);font-weight:600}
+.meter{display:grid;gap:8px;align-content:start}
+.bar{position:relative;height:10px;border-radius:5px;background:var(--grid);overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:5px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px}
+.stat .v{font:600 20px/1.2 var(--mono);font-variant-numeric:tabular-nums}
+.stat .k{font-size:12px;color:var(--muted)}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font:11px var(--mono)}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font:600 11px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--grid);white-space:nowrap}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.below td{background:var(--good-soft)}
+.matrix td{text-align:center;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.matrix td:first-child,.matrix th:first-child{text-align:left}
+.matrix th{text-align:center}
+.cell{display:inline-block;min-width:72px;padding:4px 8px;border-radius:6px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:600 13px var(--body);background:transparent;color:var(--muted);border:0;padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.seg button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+.empty{padding:30px 0;text-align:center;color:var(--muted)}
+footer{font-size:13px;color:var(--muted)}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Rastreador diário · Google Flights</div>
+    <h1>Rumo ao Texas, abril de 2027</h1>
+    <div class="route">
+      <span>Saída <b>GRU</b> ou <b>POA</b></span>
+      <span>Destinos <b>IAH · HOU · DFW · DAL · AUS · SAT · ELP</b></span>
+      <span>Ida <b>23, 24 ou 25/abr</b></span>
+      <span>Volta <b>2 ou 3/mai</b></span>
+      <span>Alerta abaixo de <b>R$ 4.000</b></span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="panel best" id="best"><div class="empty">Carregando dados…</div></div>
+    <div class="panel meter" id="meter"></div>
+  </section>
+
+  <section class="panel" style="display:grid;gap:14px">
+    <div class="toolbar">
+      <h2>Menor preço por dia de coleta</h2>
+      <div class="legend">
+        <span><i style="background:var(--accent)"></i>Saindo de GRU</span>
+        <span><i style="background:var(--warn)"></i>Saindo de POA</span>
+        <span><i style="background:var(--good)"></i>Meta R$ 4.000</span>
+      </div>
+    </div>
+    <div id="chart"></div>
+  </section>
+
+  <section class="panel" style="display:grid;gap:14px">
+    <h2>Hoje, menor preço por aeroporto</h2>
+    <div class="scroll"><table class="matrix" id="matrix"></table></div>
+  </section>
+
+  <section class="panel" style="display:grid;gap:14px">
+    <div class="toolbar">
+      <h2>Todas as combinações de hoje</h2>
+      <div class="seg" role="group" aria-label="Filtrar origem">
+        <button id="f-all" data-f="ALL" aria-pressed="true">Todas</button>
+        <button id="f-gru" data-f="GRU" aria-pressed="false">GRU</button>
+        <button id="f-poa" data-f="POA" aria-pressed="false">POA</button>
+      </div>
+    </div>
+    <div class="scroll"><table id="list"></table></div>
+  </section>
+
+  <footer id="foot">Preços ida e volta, 1 adulto, classe econômica, em reais. Coletados uma vez por dia.</footer>
+</div>
+
+<script>
+const LIMITE = 4000;
+const DESTINOS = ["IAH","HOU","DFW","DAL","AUS","SAT","ELP"];
+const brl = n => n == null ? "—" : n.toLocaleString("pt-BR");
+const dm = iso => { const [y,m,d] = iso.split("-"); return `${d}/${m}`; };
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const gf = r => "https://www.google.com/travel/flights?hl=pt-BR&curr=BRL&q=" +
+  encodeURIComponent(`Flights from ${r.origem} to ${r.destino} on ${r.ida} through ${r.volta}`);
+const nivel = { low:["good","Preço baixo p/ Google"], typical:["neutral","Preço típico p/ Google"], high:["warn","Preço alto p/ Google"] };
+
+let dias = [];
+let filtro = "ALL";
+try { filtro = localStorage.getItem("filtro") || "ALL"; } catch {}
+
+function render(){
+  if (!dias.length){
+    document.getElementById("best").innerHTML = '<div class="empty">Ainda não há coletas registradas.</div>';
+    return;
+  }
+  const hoje = dias[dias.length-1];
+  const ontem = dias.length > 1 ? dias[dias.length-2] : null;
+  const res = hoje.resultados || [];
+  const b = res[0];
+  const minOntem = ontem?.resultados?.[0]?.preco;
+  const all = dias.map(d => d.resultados?.[0]?.preco).filter(Boolean);
+  const minHist = Math.min(...all);
+
+  // Destaque
+  const st = b && b.preco < LIMITE ? ["good","Abaixo da meta, alerta enviado por email"] : ["warn", b ? `R$ ${brl(b.preco - LIMITE)} acima da meta` : "Sem resultados"];
+  const delta = b && minOntem ? b.preco - minOntem : null;
+  document.getElementById("best").innerHTML = b ? `
+    <div class="eyebrow">Melhor opção em ${dm(hoje.data)}</div>
+    <div class="price"><small>R$</small>${brl(b.preco)}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="pill ${st[0]}">${st[1]}</span>
+      ${b.nivel && nivel[b.nivel] ? `<span class="pill ${nivel[b.nivel][0]}">${nivel[b.nivel][1]}</span>` : ""}
+      ${delta != null ? `<span class="pill neutral">${delta === 0 ? "igual a ontem" : (delta < 0 ? "▼ R$ " + brl(-delta) : "▲ R$ " + brl(delta)) + " vs ontem"}</span>` : ""}
+    </div>
+    <div class="legs">
+      <span><b>${b.origem} → ${b.destino}</b></span>
+      <span>Ida ${dm(b.ida)} · Volta ${dm(b.volta)}</span>
+      <span>${esc(b.cia)} · ${b.paradas === 0 ? "direto" : b.paradas + (b.paradas === 1 ? " parada" : " paradas")} · ${esc(b.duracao)}</span>
+    </div>
+    <a href="${gf(b)}" target="_blank" rel="noopener">Ver no Google Flights ↗</a>` : '<div class="empty">Nenhum voo encontrado hoje.</div>';
+
+  // Medidor
+  const pct = b ? Math.min(100, LIMITE / b.preco * 100) : 0;
+  const abaixo = res.filter(r => r.preco < LIMITE).length;
+  document.getElementById("meter").innerHTML = `
+    <div class="eyebrow">Distância da meta</div>
+    <div class="bar" aria-label="Meta atingida em ${pct.toFixed(0)}%"><i style="width:${pct}%"></i></div>
+    <div class="muted" style="font-size:13px">A meta de R$ 4.000 equivale a ${pct.toFixed(0)}% do melhor preço de hoje.</div>
+    <div class="stats">
+      <div class="stat"><div class="v">R$ ${brl(minHist)}</div><div class="k">Menor já visto</div></div>
+      <div class="stat"><div class="v">${dias.length}</div><div class="k">Dias de coleta</div></div>
+      <div class="stat"><div class="v">${abaixo}</div><div class="k">Opções abaixo da meta hoje</div></div>
+      <div class="stat"><div class="v">${res.length}</div><div class="k">Combinações com preço hoje</div></div>
+    </div>`;
+
+  renderChart();
+  renderMatrix(res);
+  renderList(res);
+  document.getElementById("foot").textContent =
+    `Preços ida e volta, 1 adulto, econômica, em reais. Última coleta: ${dm(hoje.data)}/${hoje.data.slice(0,4)}.` +
+    (hoje.erros ? ` ${hoje.erros} buscas sem resposta nesse dia.` : "");
+}
+
+function renderChart(){
+  const W = 1000, H = 280, L = 56, R = 16, T = 16, B = 34;
+  const serie = o => dias.map(d => (d.resultados||[]).find(r => r.origem === o)?.preco ?? null);
+  const gru = serie("GRU"), poa = serie("POA");
+  const vals = [...gru, ...poa, LIMITE].filter(v => v != null);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const step = 1000;
+  lo = Math.floor((lo - 200) / step) * step; hi = Math.ceil((hi + 200) / step) * step;
+  const n = dias.length;
+  const x = i => n === 1 ? (L + W - R) / 2 : L + i * (W - L - R) / (n - 1);
+  const y = v => T + (hi - v) * (H - T - B) / (hi - lo);
+  let g = "";
+  for (let v = lo; v <= hi; v += step){
+    g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/>`;
+    g += `<text x="${L-8}" y="${y(v)+4}" text-anchor="end">${(v/1000).toLocaleString("pt-BR")} mil</text>`;
+  }
+  const every = Math.max(1, Math.ceil(n / 8));
+  dias.forEach((d,i) => { if (i % every === 0 || i === n-1) g += `<text x="${x(i)}" y="${H-10}" text-anchor="middle">${dm(d.data)}</text>`; });
+  g += `<line x1="${L}" x2="${W-R}" y1="${y(LIMITE)}" y2="${y(LIMITE)}" stroke="var(--good)" stroke-width="2" stroke-dasharray="6 5"/>`;
+  const line = (s, color) => {
+    const pts = s.map((v,i) => v == null ? null : [x(i), y(v)]).filter(Boolean);
+    if (!pts.length) return "";
+    let out = pts.length > 1 ? `<polyline fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" points="${pts.map(p=>p.join(",")).join(" ")}"/>` : "";
+    const last = pts[pts.length-1];
+    const lastV = s.filter(v => v != null).pop();
+    out += `<circle cx="${last[0]}" cy="${last[1]}" r="5" fill="${color}"/>`;
+    out += `<text x="${Math.min(last[0], W-R-4)}" y="${last[1]-10}" text-anchor="end" style="fill:${color};font-weight:600">R$ ${brl(lastV)}</text>`;
+    return out;
+  };
+  g += line(poa, "var(--warn)") + line(gru, "var(--accent)");
+  document.getElementById("chart").innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Histórico do menor preço">${g}</svg>`;
+}
+
+function renderMatrix(res){
+  const cell = (o, d) => {
+    const r = res.find(r => r.origem === o && r.destino === d);
+    if (!r) return `<td class="muted">—</td>`;
+    const cls = r.preco < LIMITE ? "background:var(--good-soft);color:var(--good)" : (r.preco < LIMITE*1.25 ? "background:var(--accent-soft);color:var(--accent)" : "");
+    return `<td><a class="cell" style="${cls};text-decoration:none;color:inherit" href="${gf(r)}" target="_blank" rel="noopener" title="${esc(r.cia)} · ida ${dm(r.ida)} · volta ${dm(r.volta)}">${brl(r.preco)}</a></td>`;
+  };
+  document.getElementById("matrix").innerHTML =
+    `<thead><tr><th>Origem</th>${DESTINOS.map(d => `<th>${d}</th>`).join("")}</tr></thead>` +
+    `<tbody>${["GRU","POA"].map(o => `<tr><td class="mono"><b>${o}</b></td>${DESTINOS.map(d => cell(o,d)).join("")}</tr>`).join("")}</tbody>`;
+}
+
+function renderList(res){
+  document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.f === filtro));
+  const rows = res.filter(r => filtro === "ALL" || r.origem === filtro);
+  document.getElementById("list").innerHTML =
+    `<thead><tr><th>Rota</th><th>Ida</th><th>Volta</th><th>Companhia</th><th>Paradas</th><th>Duração (ida)</th><th class="num">Preço R$</th><th></th></tr></thead><tbody>` +
+    (rows.length ? rows.map(r => `<tr class="${r.preco < LIMITE ? "below" : ""}">
+      <td class="mono"><b>${r.origem} → ${r.destino}</b></td><td>${dm(r.ida)}</td><td>${dm(r.volta)}</td>
+      <td>${esc(r.cia)}</td><td>${r.paradas === 0 ? "direto" : r.paradas}</td><td>${esc(r.duracao)}</td>
+      <td class="num"><b>${brl(r.preco)}</b></td><td><a href="${gf(r)}" target="_blank" rel="noopener">abrir ↗</a></td></tr>`).join("")
+      : `<tr><td colspan="8" class="empty">Nenhuma combinação para esse filtro.</td></tr>`) + "</tbody>";
+}
+
+document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+  filtro = b.dataset.f;
+  try { localStorage.setItem("filtro", filtro); } catch {}
+  renderList(dias.length ? dias[dias.length-1].resultados || [] : []);
+}));
+
+(async () => {
+  try {
+    const nocache = "?t=" + Date.now();
+    const lista = await (await fetch("data/dias.json" + nocache)).json();
+    dias = await Promise.all(lista.map(d => fetch(`data/${d}.json` + nocache).then(r => r.json())));
+    render();
+  } catch {
+    document.getElementById("best").innerHTML = '<div class="empty">Não foi possível carregar os dados. Recarregue a página.</div>';
+  }
+})();
+</script>
+</body>
+</html>
