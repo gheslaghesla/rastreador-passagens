@@ -79,7 +79,7 @@ def buscar(nav, origem, destino, ida, volta):
     params = {"tfs": _tfs(origem, destino, ida, volta), "hl": "en", "tfu": "EgQIABABIgA", "curr": "BRL"}
     try:
         r = parse_response(fetch(params))
-    except (AssertionError, RuntimeError):
+    except Exception:  # noqa: BLE001
         # Google às vezes só entrega os voos depois de rodar JavaScript
         class Resp:
             text = nav.html(params)

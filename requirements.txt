@@ -1,3 +1,6 @@
 fast-flights==2.2
-typing_extensions
-playwright
+primp==0.15.0
+playwright==1.60.0
+protobuf==6.33.6
+selectolax==0.4.12
+typing_extensions==4.16.0
