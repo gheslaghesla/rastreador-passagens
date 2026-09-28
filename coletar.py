@@ -145,20 +145,27 @@ def main():
     DATA_DIR.mkdir(exist_ok=True)
     resultados, erros = [], []
     nav = Navegador()
-    for o in ORIGENS:
-        for d in DESTINOS:
-            for ida in IDAS:
-                for volta in VOLTAS:
-                    chave = f"{o}-{d} {ida}/{volta}"
-                    try:
-                        res = buscar(nav, o, d, ida, volta)
-                    except Exception as e:  # noqa: BLE001
-                        erros.append(f"{chave}: {str(e)[:200]}")
-                        res = None
-                    if res:
-                        resultados.append({"origem": o, "destino": d, "ida": ida, "volta": volta, **res})
-                    print(chave, res["preco"] if res else "-", file=sys.stderr)
-                    time.sleep(1.5)
+    pendentes = [(o, d, ida, volta) for o in ORIGENS for d in DESTINOS for ida in IDAS for volta in VOLTAS]
+    for rodada in range(2):  # a 2ª rodada tenta de novo só o que falhou
+        falhas = []
+        erros = []
+        for o, d, ida, volta in pendentes:
+            chave = f"{o}-{d} {ida}/{volta}"
+            try:
+                res = buscar(nav, o, d, ida, volta)
+            except Exception as e:  # noqa: BLE001
+                erros.append(f"{chave}: {str(e)[:200]}")
+                res = None
+            if res:
+                resultados.append({"origem": o, "destino": d, "ida": ida, "volta": volta, **res})
+            else:
+                falhas.append((o, d, ida, volta))
+            print(f"[{rodada + 1}] {chave}", res["preco"] if res else "-", file=sys.stderr)
+            time.sleep(1.5)
+        pendentes = falhas
+        if not pendentes:
+            break
+        time.sleep(30)
     nav.fechar()
     for e in erros:
         print("ERRO", e, file=sys.stderr)
@@ -167,13 +174,13 @@ def main():
         sys.exit("Nenhum preço coletado hoje; nada foi gravado.")
 
     resultados.sort(key=lambda r: r["preco"])
-    dia = {"data": hoje, "resultados": resultados, "erros": len(erros)}
+    dia = {"data": hoje, "resultados": resultados, "erros": len(pendentes)}
     (DATA_DIR / f"{hoje}.json").write_text(json.dumps(dia, ensure_ascii=False, indent=1))
     dias = sorted(p.stem for p in DATA_DIR.glob("20*.json"))
     (DATA_DIR / "dias.json").write_text(json.dumps(dias))
 
     b = resultados[0]
-    print(f"{len(resultados)} preços, {len(erros)} falhas. Melhor: R$ {b['preco']} {b['origem']}-{b['destino']} "
+    print(f"{len(resultados)} preços, {len(pendentes)} falhas. Melhor: R$ {b['preco']} {b['origem']}-{b['destino']} "
           f"{b['ida']}/{b['volta']} {b['cia']}", file=sys.stderr)
     abaixo = [r for r in resultados if r["preco"] < LIMITE]
     if abaixo:
