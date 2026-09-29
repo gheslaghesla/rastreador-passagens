@@ -1,8 +1,12 @@
 name: Coleta diária
 
 on:
+  # O GitHub às vezes atrasa ou descarta agendamentos, então há três tentativas;
+  # as seguintes só coletam se a do dia ainda não tiver sido gravada.
   schedule:
-    - cron: "0 11 * * *"  # 8h em Brasília
+    - cron: "23 10 * * *"  # 7h23 em Brasília
+    - cron: "41 13 * * *"  # 10h41
+    - cron: "37 17 * * *"  # 14h37
   workflow_dispatch:
 
 permissions:
@@ -19,17 +23,28 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Verificar se hoje já foi coletado
+        id: hoje
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] && [ -f "data/$(TZ=America/Sao_Paulo date +%F).json" ]; then
+            echo "Coleta de hoje já existe; nada a fazer."
+            echo "feito=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-python@v6
+        if: steps.hoje.outputs.feito != 'true'
         with:
           python-version: "3.12"
           cache: pip
 
       - name: Instalar dependências
+        if: steps.hoje.outputs.feito != 'true'
         run: |
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
 
       - name: Coletar preços
+        if: steps.hoje.outputs.feito != 'true'
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
@@ -38,6 +53,7 @@ jobs:
         run: python coletar.py > /dev/null
 
       - name: Salvar dados no repositório
+        if: steps.hoje.outputs.feito != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
