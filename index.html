@@ -83,12 +83,26 @@ tr.below td{background:var(--good-soft)}
 a{color:var(--accent)}
 .empty{padding:30px 0;text-align:center;color:var(--muted)}
 footer{font-size:13px;color:var(--muted)}
+.lastrun{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:12px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:15px}
+.lastrun b{font:600 clamp(17px,2.6vw,21px)/1.2 var(--display);font-variant-numeric:tabular-nums}
+.lastrun .lr-k{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-right:4px}
+.lastrun .lr-ago{font:600 12px/1.4 var(--body);padding:3px 10px;border-radius:999px;background:var(--grid);color:var(--muted)}
+.lastrun .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+.lastrun.ok{border-color:var(--good);background:var(--good-soft)}
+.lastrun.ok .dot{background:var(--good)} .lastrun.ok .lr-ago{background:var(--panel);color:var(--good)}
+.lastrun.late{border-color:var(--warn);background:var(--warn-soft)}
+.lastrun.late .dot{background:var(--warn)} .lastrun.late .lr-ago{background:var(--panel);color:var(--warn)}
 </style>
 
 </head>
 <body>
 <div class="wrap">
   <header>
+    <div class="lastrun" id="lastrun" role="status">
+      <span class="dot"></span>
+      <span><span class="lr-k">Última coleta</span> <b id="lr-when">carregando…</b></span>
+      <span class="lr-ago" id="lr-ago"></span>
+    </div>
     <div class="eyebrow">Rastreador diário · Google Flights</div>
     <h1>Rumo ao Texas, abril de 2027</h1>
     <div class="route">
@@ -196,12 +210,31 @@ function render(){
       <div class="stat"><div class="v">${res.length}</div><div class="k">Combinações com preço hoje</div></div>
     </div>`;
 
+  renderLastRun(hoje);
   renderChart();
   renderMatrix(res);
   renderList(res);
   document.getElementById("foot").textContent =
-    `Preços ida e volta, 1 adulto, econômica, em reais. Última coleta: ${dm(hoje.data)}/${hoje.data.slice(0,4)}.` +
+    `Preços ida e volta, 1 adulto, econômica, em reais. Coletas automáticas diárias a partir das 7h23 (Brasília).` +
     (hoje.erros ? ` ${hoje.erros} buscas sem resposta nesse dia.` : "");
+}
+
+function renderLastRun(dia){
+  const box = document.getElementById("lastrun");
+  const quando = dia.coletado_em ? new Date(dia.coletado_em) : new Date(dia.data + "T12:00:00-03:00");
+  const tz = { timeZone: "America/Sao_Paulo" };
+  const dataTxt = quando.toLocaleDateString("pt-BR", { ...tz, weekday: "long", day: "numeric", month: "long" });
+  const horaTxt = dia.coletado_em ? " às " + quando.toLocaleTimeString("pt-BR", { ...tz, hour: "2-digit", minute: "2-digit" }) : "";
+  document.getElementById("lr-when").textContent = dataTxt.charAt(0).toUpperCase() + dataTxt.slice(1) + horaTxt;
+  const horas = (Date.now() - quando.getTime()) / 36e5;
+  const hojeSP = new Date().toLocaleDateString("en-CA", tz);
+  let ago;
+  if (horas < 1) ago = "há menos de 1 hora";
+  else if (horas < 24) ago = `há ${Math.floor(horas)} h`;
+  else ago = `há ${Math.floor(horas / 24)} dia${horas >= 48 ? "s" : ""}`;
+  const emDia = dia.data === hojeSP || horas < 30;
+  box.className = "lastrun " + (emDia ? "ok" : "late");
+  document.getElementById("lr-ago").textContent = emDia ? (dia.data === hojeSP ? "coleta de hoje · " : "") + ago : ago + " · coleta atrasada";
 }
 
 function renderChart(){

@@ -174,7 +174,8 @@ def main():
         sys.exit("Nenhum preço coletado hoje; nada foi gravado.")
 
     resultados.sort(key=lambda r: r["preco"])
-    dia = {"data": hoje, "resultados": resultados, "erros": len(pendentes)}
+    coletado_em = datetime.now(ZoneInfo("America/Sao_Paulo")).isoformat(timespec="minutes")
+    dia = {"data": hoje, "coletado_em": coletado_em, "resultados": resultados, "erros": len(pendentes)}
     (DATA_DIR / f"{hoje}.json").write_text(json.dumps(dia, ensure_ascii=False, indent=1))
     dias = sorted(p.stem for p in DATA_DIR.glob("20*.json"))
     (DATA_DIR / "dias.json").write_text(json.dumps(dias))
