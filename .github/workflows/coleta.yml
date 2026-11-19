@@ -8,6 +8,13 @@ on:
     - cron: "41 13 * * *"  # 10h41
     - cron: "37 17 * * *"  # 14h37
   workflow_dispatch:
+  # Roda também quando o código muda, para validar a alteração na hora
+  push:
+    branches: [main]
+    paths:
+      - coletar.py
+      - requirements.txt
+      - .github/workflows/coleta.yml
 
 permissions:
   contents: write
@@ -18,7 +25,7 @@ concurrency:
 
 jobs:
   coletar:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # fixo: o Playwright não instala no Ubuntu 26 (ubuntu-latest desde nov/2026)
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
