@@ -28,6 +28,8 @@ DESTINOS = ["IAH", "HOU", "DFW", "DAL", "AUS", "SAT", "ELP"]
 IDAS = ["2027-04-23", "2027-04-24", "2027-04-25"]
 VOLTAS = ["2027-05-02", "2027-05-03"]
 LIMITE = 4000
+# Tempo máximo de coleta: depois disso grava o que já tiver (o job do GitHub morre em 120 min)
+ORCAMENTO_S = int(os.environ.get("ORCAMENTO_MIN", "80")) * 60
 
 DATA_DIR = Path(__file__).parent / "data"
 
@@ -63,7 +65,7 @@ class Navegador:
         page = self._browser.new_page(locale="en-US")
         try:
             page.goto("https://www.google.com/travel/flights?" + urlencode(params))
-            page.locator(".eQ35Ce").wait_for(timeout=90000)
+            page.locator(".eQ35Ce").wait_for(timeout=45000)
             page.wait_for_timeout(2000)
             return page.evaluate("() => document.querySelector('[role=main]').innerHTML")
         finally:
@@ -145,11 +147,16 @@ def main():
     DATA_DIR.mkdir(exist_ok=True)
     resultados, erros = [], []
     nav = Navegador()
+    inicio = time.monotonic()
     pendentes = [(o, d, ida, volta) for o in ORIGENS for d in DESTINOS for ida in IDAS for volta in VOLTAS]
     for rodada in range(2):  # a 2ª rodada tenta de novo só o que falhou
         falhas = []
         erros = []
-        for o, d, ida, volta in pendentes:
+        for i, (o, d, ida, volta) in enumerate(pendentes):
+            if time.monotonic() - inicio > ORCAMENTO_S:
+                print("Tempo esgotado; gravando o que já foi coletado.", file=sys.stderr)
+                falhas.extend(pendentes[i:])
+                break
             chave = f"{o}-{d} {ida}/{volta}"
             try:
                 res = buscar(nav, o, d, ida, volta)
@@ -163,7 +170,7 @@ def main():
             print(f"[{rodada + 1}] {chave}", res["preco"] if res else "-", file=sys.stderr)
             time.sleep(1.5)
         pendentes = falhas
-        if not pendentes:
+        if not pendentes or time.monotonic() - inicio > ORCAMENTO_S:
             break
         time.sleep(30)
     nav.fechar()
